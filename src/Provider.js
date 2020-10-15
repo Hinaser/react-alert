@@ -24,6 +24,7 @@ const Provider = ({
   containerStyle,
   template: AlertComponent,
   context: Context,
+  rootRef, // Reference to an element on window. Used to popup alert on a new window.
   ...props
 }) => {
   const root = useRef(null)
@@ -32,14 +33,16 @@ const Provider = ({
   const [alerts, setAlerts] = useState([])
 
   useEffect(() => {
-    root.current = document.createElement('div')
+    const doc =
+      rootRef && rootRef.current ? rootRef.current.ownerDocument : document
+    root.current = doc.createElement('div')
     root.current.id = '__react-alert__'
-    document.body.appendChild(root.current)
+    doc.body.appendChild(root.current)
     const timersIdRef = timersId.current
 
     return () => {
       timersIdRef.forEach(clearTimeout)
-      if (root.current) document.body.removeChild(root.current)
+      if (root.current) doc.body.removeChild(root.current)
     }
   }, [])
 
